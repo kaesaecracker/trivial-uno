@@ -1,15 +1,49 @@
+using System.Collections;
 using Microsoft.Extensions.Logging;
-using TrivialUno.NextTurnStrategies;
+using TrivialUno.Strategies;
 
 namespace TrivialUno;
 
+public class Players : IEnumerable<Player>
+{
+    private readonly ILogger<Players> _logger;
+    public Players(ILogger<Players> logger)
+    {
+        _logger = logger;
+    }
+
+    private List<Player> _allPlayers = new();
+
+    public void Add(Player p)
+    {
+        _allPlayers.Add(p);
+    }
+
+    public IEnumerator<Player> GetEnumerator() => _allPlayers.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public Player this[int key]
+    {
+        get => _allPlayers[key];
+    }
+
+    public int Count => _allPlayers.Count;
+}
+
 public class Player
 {
-    public required string Name { private get; init; }
+    private readonly ILogger _logger;
+    public Player(ILogger<Player> logger)
+    {
+        _logger = logger;
+    }
 
-    public required NextTurnStrategy NextTurnStrategy { private get; init; }
+    public required string Name { private get; set; }
 
-    private readonly ILogger _logger = LoggingManager.Factory.CreateLogger<Player>();
+    public required NextTurnStrategy NextTurnStrategy { private get; set; }
+
+
     private readonly List<Card> _hand = new();
 
     public void DrawCard(Game game) => _hand.Add(game.DrawCard());

@@ -1,4 +1,4 @@
-namespace TrivialUno.NextTurnStrategies;
+namespace TrivialUno.Strategies;
 
 class PlayableStrategylet : INextTurnStrategylet
 {

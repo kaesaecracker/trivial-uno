@@ -1,64 +1,31 @@
-using System.Collections;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TrivialUno.CardEffects;
 using TrivialUno.CardTypes;
 
 namespace TrivialUno;
 
-class PlayerTurnOder : IEnumerator<Player>
-{
-    public required Player[] Players { private get; init; }
-
-    private int _currentIndex = 0;
-    private int _direction = 1;
-    private readonly ILogger _logger = LoggingManager.Factory.CreateLogger<PlayerTurnOder>();
-
-    public Player Current => Players[_currentIndex];
-
-    object IEnumerator.Current => Current;
-
-    public void Dispose()
-    {
-    }
-
-    public bool MoveNext()
-    {
-        var oldIndex = _currentIndex;
-        _currentIndex = GetNextIndex();
-        _logger.LogDebug("MoveNext moving from {} to {} with direction {}", oldIndex, _currentIndex, _direction);
-        return true;
-    }
-
-    public void Reset()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void ReverseOrder()
-    {
-        _direction = -_direction;
-    }
-
-    public Player PeekNext() => Players[GetNextIndex()];
-
-    private int GetNextIndex() => (_currentIndex + _direction) % Players.Length;
-}
-
 public class Game
 {
-    private const uint StartingCards = 3;
-    private static readonly Random _random = new();
+    private readonly Random _random;
+    private readonly Players _players;
+    private readonly ILogger<Game> _logger;
+    private readonly Stack<Card> _drawStack = CardTypeManager.Singleton.GenerateDrawStack();
+    private readonly Stack<Card> _playStack = new();
+    private readonly PlayerTurnOrder _playerTurnOder;
+    public Game(ILogger<Game> logger, Random rand, Players players, PlayerTurnOrder turnOder)
+    {
+        _logger = logger;
+        _random = rand;
+        _players = players;
+        _playerTurnOder = turnOder;
+    }
 
-    public required Player[] Players { private get; init; }
+    private const uint StartingCards = 3;
 
     public Card CurrentTopCard => _playStack.Peek();
 
     public bool Ended { get; private set; } = false;
-
-    private readonly Stack<Card> _drawStack = CardTypeManager.Singleton.GenerateDrawStack();
-    private readonly Stack<Card> _playStack = new();
-    private readonly ILogger _logger = LoggingManager.Factory.CreateLogger<Game>();
-    private PlayerTurnOder? _playerTurnOder;
 
     public void SetupPhase()
     {
@@ -69,13 +36,10 @@ public class Game
 
         for (int i = 0; i < StartingCards; i++)
         {
-            foreach (var player in Players)
+            foreach (var player in _players)
                 player.DrawCard(this);
         }
         _logger.LogInformation("All players drew {} cards", StartingCards);
-
-        _playerTurnOder = new PlayerTurnOder { Players = Players };
-        _logger.LogInformation("Order established, first player is {}", _playerTurnOder.Current);
     }
 
     public Card DrawCard()

@@ -1,6 +1,6 @@
 using TrivialUno.CardTypes;
 
-namespace TrivialUno.NextTurnStrategies;
+namespace TrivialUno.Strategies;
 
 class PopularColorStrategylet : INextTurnStrategylet
 {

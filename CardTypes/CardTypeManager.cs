@@ -40,5 +40,5 @@ public class CardTypeManager
     }
 
     private static readonly Random _random = new();
-    private List<ICardType> _types = new();
+    private readonly List<ICardType> _types = new();
 }
