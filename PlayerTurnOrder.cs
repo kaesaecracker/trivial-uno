@@ -1,6 +1,8 @@
+using System.Buffers;
+
 namespace TrivialUno;
 
-sealed class PlayerTurnOrder : IEnumerator<Player>
+sealed class PlayerTurnOrder
 {
     private readonly ILogger<PlayerTurnOrder> _logger;
     private readonly Players _players;
@@ -14,13 +16,13 @@ sealed class PlayerTurnOrder : IEnumerator<Player>
     private int _currentIndex;
     private int _direction = 1;
 
-    public Player Current => _players[_currentIndex];
+    public Player Current => _players.Count == 0 ? ThrowNoPlayers() : _players[_currentIndex];
 
-    object IEnumerator.Current => Current;
+    public Player Next => _players.Count == 0 ? ThrowNoPlayers() : _players[GetNextIndex()];
 
-    void IDisposable.Dispose() { GC.SuppressFinalize(this); }
+    private static Player ThrowNoPlayers() => throw new InvalidOperationException("no players added");
 
-    public bool MoveNext()
+    public bool EndTurnOfCurrentPlayer()
     {
         var oldIndex = _currentIndex;
         _currentIndex = GetNextIndex();
@@ -28,17 +30,15 @@ sealed class PlayerTurnOrder : IEnumerator<Player>
         return true;
     }
 
-    public void Reset()
-    {
-        throw new NotImplementedException();
-    }
-
     public void ReverseOrder()
     {
         _direction = -_direction;
+        _logger.LogInformation("player order reversed");
     }
 
-    public Player PeekNext() => _players[GetNextIndex()];
-
-    private int GetNextIndex() => (_currentIndex + _direction) % _players.Count;
+    private int GetNextIndex()
+    {
+        var index = (_currentIndex + _direction) % _players.Count;
+        return index < 0 ? index + _players.Count : index;
+    }
 }

@@ -9,76 +9,90 @@ sealed class Game
     private readonly Players _players;
     private readonly ILogger<Game> _logger;
     private readonly Stack<Card> _drawStack;
-    private readonly Stack<Card> _playStack = new();
+    private readonly GameRules _rules;
+    private readonly Stack<Card> _discardPile = new();
     private readonly PlayerTurnOrder _playerTurnOder;
-    private bool _ended;
+    private Card? lastPlayedCard;
 
-    public Game(ILogger<Game> logger, Random rand, Players players, PlayerTurnOrder turnOder, CardTypeManager cardTypeManager)
+    public Game(ILogger<Game> logger, Random rand, Players players, PlayerTurnOrder turnOder, CardTypeManager cardTypeManager, GameRules rules)
     {
         _logger = logger;
         _random = rand;
         _players = players;
         _playerTurnOder = turnOder;
         _drawStack = cardTypeManager.GenerateDrawStack();
+        _rules = rules;
     }
 
-    private const uint StartingCards = 3;
-
-    public Card CurrentTopCard => _playStack.Peek();
-
-    public void SetupPhase()
+    private void SetupPhase()
     {
-        using var _ = _logger.BeginScope("setup phase");
+        using var scope = _logger.BeginScope("setup phase");
 
-        _playStack.Push(_drawStack.Pop());
-        _logger.LogInformation("First Card: {}", _playStack.Peek());
-
-        for (int i = 0; i < StartingCards; i++)
+        _logger.LogInformation("All players will now draw {} cards", _rules.StartingCardsPerPlayer);
+        for (int i = 0; i < _rules.StartingCardsPerPlayer; i++)
         {
             foreach (var player in _players)
-                player.DrawCard(this);
+                player.DrawCard(TakeFromDrawStack());
         }
-        _logger.LogInformation("All players drew {} cards", StartingCards);
+
+        LastPlayedCard = TakeFromDrawStack();
+        PlayCard(LastPlayedCard);
+        _logger.LogInformation("First Card: {}", LastPlayedCard);
     }
 
-    public async Task Run()
+    public Card LastPlayedCard
     {
-        while (!_ended)
+        get => lastPlayedCard ?? throw new InvalidOperationException();
+        private set => lastPlayedCard = value;
+    }
+
+    public async Task Run(CancellationToken cancellationToken)
+    {
+        SetupPhase();
+        while (!cancellationToken.IsCancellationRequested && Advance())
         {
-            Advance();
-            await Task.Delay(0).ConfigureAwait(false);
+            await Task.Delay(0, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    public Card DrawCard()
+    private Card TakeFromDrawStack()
     {
         if (!_drawStack.Any())
-            ShufflePlaystackToDrawStack();
-        return _drawStack.Pop();
+            ShuffleDiscardPileIntoDrawStack();
+        if (!_drawStack.TryPop(out var card))
+            throw new NotEnoughCardsException("did not have enough cards while drawing a card");
+        _logger.LogDebug("took {} from draw stack", card);
+        return card;
     }
 
-    private void ShufflePlaystackToDrawStack()
+    private void ShuffleDiscardPileIntoDrawStack()
     {
-        _logger.LogInformation("Shuffling deck");
-        var topCard = _playStack.Pop();
-        var cardsToShuffle = _playStack.ToArray();
-        _playStack.Clear();
-        _playStack.Push(topCard);
+        _logger.LogInformation("Shuffling discard pile into draw stack");
+        var cardsToShuffle = _discardPile.Union(_drawStack).ToArray();
         _random.Shuffle(cardsToShuffle);
-        _drawStack.PushRange(cardsToShuffle);
+
+        _discardPile.Clear();
+        _drawStack.Clear();
+        foreach (var item in cardsToShuffle)
+            _drawStack.Push(item);
     }
 
-    public void PlayCard(Card card)
+    private void PlayCard(Card card)
     {
-        _playStack.Push(card);
-
+        LastPlayedCard = card;
         if (card.CardType is IEffectCardType effectCardType)
         {
+            using var scope = _logger.BeginScope("effects of {Card}", card);
             foreach (var effect in effectCardType.CardEffects)
-            {
                 HandleEffect(effect);
-            }
         }
+        _discardPile.Push(card);
+    }
+
+    private void DiscardCard(Card card)
+    {
+        _logger.LogInformation("Discarding {}", card);
+        _discardPile.Push(card);
     }
 
     private void HandleEffect(ICardEffect effect)
@@ -86,43 +100,54 @@ sealed class Game
         switch (effect)
         {
             case ForceNextPlayerDrawEffect draw:
-                HandleDrawCardEffect(draw);
+                _logger.LogInformation("the played card forces {} to draw {} cards", _playerTurnOder.Next, draw.CardsToDraw);
+                for (int i = 0; i < draw.CardsToDraw; i++)
+                    _playerTurnOder.Next.DrawCard(TakeFromDrawStack());
                 break;
-            case ChooseColorEffect color:
-                HandleChooseColorEffect(color);
+            case ReverseEffect:
+                _playerTurnOder.ReverseOrder();
                 break;
             default:
-                throw new NotImplementedException();
+                throw new NotImplementedException($"Effect of type {effect.GetType().Name} not implemeneted");
         }
     }
 
-    private bool HandleChooseColorEffect(ChooseColorEffect color)
+    internal bool Advance()
     {
-        throw new NotImplementedException();
-    }
+        var player = _playerTurnOder.Current;
+        _logger.LogDebug("Starting turn of {}", player);
 
-    private void HandleDrawCardEffect(ForceNextPlayerDrawEffect draw)
-    {
-        var nextPlayer = _playerTurnOder!.PeekNext();
-        for (int i = 0; i < draw.CardsToDraw; i++)
-            nextPlayer.DrawCard(this);
-
-        _logger.LogInformation("the played card {} forced {} to draw {} cards", draw, nextPlayer, draw.CardsToDraw);
-
-    }
-
-    internal void Advance()
-    {
-        if (_ended) throw new InvalidOperationException();
-        var player = _playerTurnOder?.Current ?? throw new InvalidOperationException();
-
-        if (player.NextTurn(this))
+        var playerChoosenCard = player.ChooseCardToPlay(LastPlayedCard);
+        if (playerChoosenCard == null)
         {
-            _ended = true;
-            _logger.LogInformation("{} wins", player);
-            return;
+            var drawCard = TakeFromDrawStack();
+            player.DrawCard(drawCard);
+            _playerTurnOder.EndTurnOfCurrentPlayer();
+            return true;
         }
 
-        _playerTurnOder.MoveNext();
+        if (!playerChoosenCard.CanBePlayedOn(LastPlayedCard))
+            throw new IllegalMoveException($"{player} tried to play {playerChoosenCard} onto {LastPlayedCard}!");
+
+        PlayCard(playerChoosenCard);
+        _logger.LogInformation("{Player} plays {Card}", player, playerChoosenCard);
+
+        if (player.CardsLeft == 0)
+        {
+            _logger.LogInformation("{} wins", player);
+            return false;
+        }
+
+        if (player.CardsLeft > _rules.MaxCardsInHand)
+        {
+            _logger.LogInformation("{} has to discard cards because he has {} out of {}", player, player.CardsLeft, _rules.MaxCardsInHand);
+            while (player.CardsLeft > _rules.MaxCardsInHand)
+            {
+                DiscardCard(player.ChooseCardToDiscard());
+            }
+        }
+
+        _playerTurnOder.EndTurnOfCurrentPlayer();
+        return true;
     }
 }

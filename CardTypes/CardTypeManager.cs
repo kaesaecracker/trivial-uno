@@ -6,13 +6,14 @@ sealed class CardTypeManager
     public IReadOnlyList<ICardType> Types => _types.AsReadOnly();
     private readonly Random _random;
 
-    public CardTypeManager(Random rand)
+    public CardTypeManager(Random rand, GameRules rules)
     {
         _random = rand;
 
         foreach (CardColor color in Enum.GetValues(typeof(CardColor)))
         {
             _types.Add(new ColoredDrawCardType { Color = color });
+            _types.Add(new ColoredReverseCard { Color = color });
             for (uint num = 1; num <= 7; num++)
             {
                 _types.Add(new NormalCardType { Number = num, Color = color });
@@ -21,6 +22,11 @@ sealed class CardTypeManager
 
         _types.Add(new BlackDrawCardType());
         _types.Add(new BlackColorChooseCardType());
+
+        if (rules.CrazyCards)
+        {
+            _types.Add(new BlackReverseCard());
+        }
     }
 
     public Stack<Card> GenerateDrawStack()

@@ -26,38 +26,44 @@ sealed class Players : IEnumerable<Player>
 sealed class Player
 {
     private readonly ILogger _logger;
-    public Player(ILogger<Player> logger)
+    private readonly Game _game;
+    private readonly GameRules _rules;
+
+    public Player(ILogger<Player> logger, Game game, GameRules rules)
     {
         _logger = logger;
+        _game = game;
+        _rules = rules;
     }
 
     public required string Name { private get; set; }
 
-    public required Strategy NextTurnStrategy { private get; set; }
+    public required Strategy PlayCardStrategy { private get; set; }
 
+    public int CardsLeft => _hand.Count;
 
     private readonly List<Card> _hand = new();
 
-    public void DrawCard(Game game) => _hand.Add(game.DrawCard());
-
-    public bool NextTurn(Game game)
+    public void DrawCard(Card card)
     {
-        using var logScope = _logger.BeginScope("{}", this);
-        var bestCardToPlay = _hand.Count == 0 ? null : NextTurnStrategy.GetNextTurn(_hand.AsReadOnly(), game.CurrentTopCard);
-        if (bestCardToPlay == null)
-        {
-            DrawCard(game);
-            _logger.LogInformation("drawing {}, now {} cards remaining", _hand.Last(), _hand.Count);
-            return false;
-        }
+        _logger.LogInformation("{} draws {}", this, card);
+        _hand.Add(card);
+    }
 
-        if (!bestCardToPlay.CanBePlayedOn(game.CurrentTopCard))
-            throw new InvalidOperationException();
+    public Card? ChooseCardToPlay(Card lastPlayedCard)
+    {
+        var card = _hand.Count == 0 ? null : PlayCardStrategy.GetNextTurn(_hand.AsReadOnly(), lastPlayedCard);
+        if (card != null)
+            _hand.Remove(card);
+        return card;
+    }
 
-        _hand.Remove(bestCardToPlay);
-        _logger.LogInformation("playing {}, now {} cards remaining", bestCardToPlay, _hand.Count);
-        game.PlayCard(bestCardToPlay);
-        return _hand.Count == 0;
+    public Card ChooseCardToDiscard()
+    {
+        // TODO: implement strategies
+        var card = _hand[0];
+        _hand.RemoveAt(0);
+        return card;
     }
 
     public override string ToString() => $"[Player {Name}]";

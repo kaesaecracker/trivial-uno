@@ -11,6 +11,7 @@ static class Startup
         .AddSingleton<Strategies.NextTurnParts.FirstDrawnFirstPlayed>()
         .AddSingleton<Strategies.NextTurnParts.Playable>()
         .AddSingleton<Strategies.NextTurnParts.PopularColor>()
+        .AddSingleton<GameRules>()
         .AddScoped<PlayerTurnOrder>()
         .AddScoped<Game>()
         .AddScoped<Players>()
@@ -20,6 +21,7 @@ static class Startup
         .SetMinimumLevel(LogLevel.Trace)
         .AddFilter("System", LogLevel.Warning)
         .AddFilter("TrivialUno.PlayerTurnOrder", LogLevel.Information)
+        .AddFilter("TrivialUno.Game", LogLevel.Information)
         .AddSimpleConsole(opts =>
         {
             opts.IncludeScopes = true;

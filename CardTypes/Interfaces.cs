@@ -14,6 +14,10 @@ interface IColoredCardType : ICardType
     CardColor Color { get; }
 }
 
+interface IBlackCardType : ICardType
+{
+}
+
 interface INumberedCardType : ICardType
 {
     uint Number { get; }
