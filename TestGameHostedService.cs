@@ -2,17 +2,20 @@ using Microsoft.Extensions.Hosting;
 
 namespace TrivialUno;
 
-class TestGameHostedService : IHostedService
+sealed class TestGameHostedService : IHostedService, IDisposable
 {
     private readonly ILogger<TestGameHostedService> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly IHost _host;
+    private readonly IServiceScope _scope;
+    private bool disposedValue;
 
     public TestGameHostedService(ILogger<TestGameHostedService> logger, IServiceProvider serviceProvider, IHost host)
     {
         _logger = logger;
-        _serviceProvider = serviceProvider.CreateScope().ServiceProvider;
         _host = host;
+        _scope = serviceProvider.CreateScope();
+        _serviceProvider = _scope.ServiceProvider;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -33,10 +36,19 @@ class TestGameHostedService : IHostedService
         players.Add(p2);
 
         game.SetupPhase();
-        await game.Run();
+        await game.Run().ConfigureAwait(false);
 
-        await _host.StopAsync(CancellationToken.None);
+        await _host.StopAsync(CancellationToken.None).ConfigureAwait(false);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    public void Dispose()
+    {
+        if (disposedValue)
+            return;
+        _scope.Dispose();
+        disposedValue = true;
+        GC.SuppressFinalize(this);
+    }
 }

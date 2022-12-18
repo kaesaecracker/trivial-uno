@@ -1,6 +1,6 @@
 namespace TrivialUno.CardTypes;
 
-class CardTypeManager
+sealed class CardTypeManager
 {
     private readonly List<ICardType> _types = new();
     public IReadOnlyList<ICardType> Types => _types.AsReadOnly();

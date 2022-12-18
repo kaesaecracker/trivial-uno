@@ -1,6 +1,6 @@
 namespace TrivialUno.CardTypes;
 
-class NormalCardType : IColoredCardType, INumberedCardType
+sealed class NormalCardType : IColoredCardType, INumberedCardType
 {
     public required uint Number { get; init; }
 

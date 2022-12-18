@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Hosting;
 
+[assembly: CLSCompliant(true)]
+
 namespace TrivialUno;
 
-public class Program
+public static class Program
 {
     public static async Task Main(string[]? args)
     {
@@ -15,6 +17,6 @@ public class Program
             )
             .Build();
 
-        await host.RunAsync();
+        await host.RunAsync().ConfigureAwait(false);
     }
 }

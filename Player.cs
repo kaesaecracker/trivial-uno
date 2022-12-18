@@ -2,7 +2,7 @@ using TrivialUno.Strategies;
 
 namespace TrivialUno;
 
-class Players : IEnumerable<Player>
+sealed class Players : IEnumerable<Player>
 {
     private readonly List<Player> _allPlayers = new();
 
@@ -23,7 +23,7 @@ class Players : IEnumerable<Player>
     public int Count => _allPlayers.Count;
 }
 
-class Player
+sealed class Player
 {
     private readonly ILogger _logger;
     public Player(ILogger<Player> logger)

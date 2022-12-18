@@ -1,6 +1,6 @@
 namespace TrivialUno.CardEffects;
 
-class ChooseColorEffect : ICardEffect
+sealed class ChooseColorEffect : ICardEffect
 {
 
 }

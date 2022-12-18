@@ -3,7 +3,7 @@ using TrivialUno.CardTypes;
 
 namespace TrivialUno;
 
-class Game
+sealed class Game
 {
     private readonly Random _random;
     private readonly Players _players;
@@ -11,7 +11,7 @@ class Game
     private readonly Stack<Card> _drawStack;
     private readonly Stack<Card> _playStack = new();
     private readonly PlayerTurnOrder _playerTurnOder;
-    private bool _ended = false;
+    private bool _ended;
 
     public Game(ILogger<Game> logger, Random rand, Players players, PlayerTurnOrder turnOder, CardTypeManager cardTypeManager)
     {
@@ -46,15 +46,19 @@ class Game
         while (!_ended)
         {
             Advance();
-            await Task.Delay(0);
+            await Task.Delay(0).ConfigureAwait(false);
         }
     }
 
     public Card DrawCard()
     {
-        if (_drawStack.TryPop(out var card))
-            return card;
+        if (!_drawStack.Any())
+            ShufflePlaystackToDrawStack();
+        return _drawStack.Pop();
+    }
 
+    private void ShufflePlaystackToDrawStack()
+    {
         _logger.LogInformation("Shuffling deck");
         var topCard = _playStack.Pop();
         var cardsToShuffle = _playStack.ToArray();
@@ -62,14 +66,13 @@ class Game
         _playStack.Push(topCard);
         _random.Shuffle(cardsToShuffle);
         _drawStack.PushRange(cardsToShuffle);
-        return _drawStack.Pop();
     }
 
     public void PlayCard(Card card)
     {
         _playStack.Push(card);
 
-        if (card is IEffectCardType effectCardType)
+        if (card.CardType is IEffectCardType effectCardType)
         {
             foreach (var effect in effectCardType.CardEffects)
             {
@@ -123,4 +126,3 @@ class Game
         _playerTurnOder.MoveNext();
     }
 }
-

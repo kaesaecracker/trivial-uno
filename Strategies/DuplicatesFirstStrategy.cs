@@ -1,6 +1,6 @@
 namespace TrivialUno.Strategies;
 
-class DuplicatesFirstStrategy : Strategy
+sealed class DuplicatesFirstStrategy : Strategy
 {
     public DuplicatesFirstStrategy(
         ILogger<Strategy> logger, NextTurnParts.Playable playablePart,

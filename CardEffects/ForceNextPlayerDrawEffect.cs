@@ -1,6 +1,6 @@
 namespace TrivialUno.CardEffects;
 
-class ForceNextPlayerDrawEffect : ICardEffect
+sealed class ForceNextPlayerDrawEffect : ICardEffect
 {
     public required uint CardsToDraw { get; init; }
 }

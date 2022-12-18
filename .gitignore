@@ -1,2 +1,6 @@
 bin/
 obj/
+*.nettrace
+*.nettrace.etlx
+.vscode/launch.json
+.vscode/tasks.json

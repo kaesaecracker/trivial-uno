@@ -1,6 +1,6 @@
 namespace TrivialUno;
 
-class PlayerTurnOrder : IEnumerator<Player>
+sealed class PlayerTurnOrder : IEnumerator<Player>
 {
     private readonly ILogger<PlayerTurnOrder> _logger;
     private readonly Players _players;
@@ -11,7 +11,7 @@ class PlayerTurnOrder : IEnumerator<Player>
         _players = players;
     }
 
-    private int _currentIndex = 0;
+    private int _currentIndex;
     private int _direction = 1;
 
     public Player Current => _players[_currentIndex];
@@ -42,4 +42,3 @@ class PlayerTurnOrder : IEnumerator<Player>
 
     private int GetNextIndex() => (_currentIndex + _direction) % _players.Count;
 }
-

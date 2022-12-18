@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using TrivialUno.CardEffects;
 using TrivialUno.CardTypes;
 
 namespace TrivialUno;
 
-class Card
+sealed class Card
 {
     public required ICardType CardType { get; init; }
 
@@ -19,15 +20,15 @@ class Card
     {
         var builder = new StringBuilder("[Card");
         if (CardType is IColoredCardType typeColored)
-            builder.Append($" {typeColored.Color}");
+            builder.Append(CultureInfo.InvariantCulture, $" {typeColored.Color}");
         if (CardType is INumberedCardType typeNumbered)
-            builder.Append($" {typeNumbered.Number}");
+            builder.Append(CultureInfo.InvariantCulture, $" {typeNumbered.Number}");
         if (CardType is IEffectCardType typeEffect)
         {
             foreach (var effect in typeEffect.CardEffects)
             {
                 if (effect is ForceNextPlayerDrawEffect drawEffect)
-                    builder.Append($" draw{drawEffect.CardsToDraw}");
+                    builder.Append(CultureInfo.InvariantCulture, $" draw{drawEffect.CardsToDraw}");
                 if (effect is ChooseColorEffect)
                     builder.Append(" chooseColor");
             }

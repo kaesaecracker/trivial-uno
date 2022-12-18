@@ -2,7 +2,7 @@ using TrivialUno.CardEffects;
 
 namespace TrivialUno.CardTypes;
 
-class ColoredDrawCardType : IColoredCardType, IEffectCardType
+sealed class ColoredDrawCardType : IColoredCardType, IEffectCardType
 {
     public required CardColor Color { get; init; }
 

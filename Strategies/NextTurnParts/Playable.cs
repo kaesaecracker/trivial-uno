@@ -1,6 +1,6 @@
 namespace TrivialUno.Strategies.NextTurnParts;
 
-class Playable : INextTurnStrategylet
+sealed class Playable : INextTurnStrategylet
 {
     public IReadOnlyList<Card> FilterOptions(IReadOnlyList<Card> hand, IReadOnlyList<Card> remainingOptions, Card currentTopCard)
     {

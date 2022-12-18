@@ -2,7 +2,7 @@ using TrivialUno.CardTypes;
 
 namespace TrivialUno.Strategies.NextTurnParts;
 
-class DuplicatesCardTypes : INextTurnStrategylet
+sealed class DuplicatesCardTypes : INextTurnStrategylet
 {
     public IReadOnlyList<Card> FilterOptions(IReadOnlyList<Card> hand, IReadOnlyList<Card> remainingOptions, Card currentTopCard)
     {
