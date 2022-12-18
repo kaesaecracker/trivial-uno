@@ -1,18 +1,10 @@
-using System.Collections;
-using Microsoft.Extensions.Logging;
 using TrivialUno.Strategies;
 
 namespace TrivialUno;
 
-public class Players : IEnumerable<Player>
+class Players : IEnumerable<Player>
 {
-    private readonly ILogger<Players> _logger;
-    public Players(ILogger<Players> logger)
-    {
-        _logger = logger;
-    }
-
-    private List<Player> _allPlayers = new();
+    private readonly List<Player> _allPlayers = new();
 
     public void Add(Player p)
     {
@@ -31,7 +23,7 @@ public class Players : IEnumerable<Player>
     public int Count => _allPlayers.Count;
 }
 
-public class Player
+class Player
 {
     private readonly ILogger _logger;
     public Player(ILogger<Player> logger)
@@ -41,7 +33,7 @@ public class Player
 
     public required string Name { private get; set; }
 
-    public required NextTurnStrategy NextTurnStrategy { private get; set; }
+    public required Strategy NextTurnStrategy { private get; set; }
 
 
     private readonly List<Card> _hand = new();
@@ -50,7 +42,7 @@ public class Player
 
     public bool NextTurn(Game game)
     {
-        using var logScope = _logger.BeginScope("Turn of {}", Name);
+        using var logScope = _logger.BeginScope("{}", this);
         var bestCardToPlay = _hand.Count == 0 ? null : NextTurnStrategy.GetNextTurn(_hand.AsReadOnly(), game.CurrentTopCard);
         if (bestCardToPlay == null)
         {

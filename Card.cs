@@ -4,7 +4,7 @@ using TrivialUno.CardTypes;
 
 namespace TrivialUno;
 
-public class Card
+class Card
 {
     public required ICardType CardType { get; init; }
 

@@ -1,9 +1,6 @@
-using System.Collections;
-using Microsoft.Extensions.Logging;
-
 namespace TrivialUno;
 
-public class PlayerTurnOrder : IEnumerator<Player>
+class PlayerTurnOrder : IEnumerator<Player>
 {
     private readonly ILogger<PlayerTurnOrder> _logger;
     private readonly Players _players;

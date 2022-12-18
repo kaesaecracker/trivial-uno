@@ -2,7 +2,7 @@ using TrivialUno.CardEffects;
 
 namespace TrivialUno.CardTypes;
 
-public class BlackColorChooseCardType : IEffectCardType
+class BlackColorChooseCardType : IEffectCardType
 {
     public uint CardsInDeck => 4;
 

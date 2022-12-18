@@ -1,13 +1,15 @@
 namespace TrivialUno.CardTypes;
 
-public class CardTypeManager
+class CardTypeManager
 {
-    public static CardTypeManager Singleton { get; } = new();
-
+    private readonly List<ICardType> _types = new();
     public IReadOnlyList<ICardType> Types => _types.AsReadOnly();
+    private readonly Random _random;
 
-    private CardTypeManager()
+    public CardTypeManager(Random rand)
     {
+        _random = rand;
+
         foreach (CardColor color in Enum.GetValues(typeof(CardColor)))
         {
             _types.Add(new ColoredDrawCardType { Color = color });
@@ -38,7 +40,4 @@ public class CardTypeManager
         var stack = new Stack<Card>(shuffled);
         return stack;
     }
-
-    private static readonly Random _random = new();
-    private readonly List<ICardType> _types = new();
 }

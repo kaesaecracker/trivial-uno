@@ -1,12 +1,9 @@
 using TrivialUno.CardTypes;
 
-namespace TrivialUno.Strategies;
+namespace TrivialUno.Strategies.NextTurnParts;
 
-class DuplicatesCardTypesFirstStrategylet : INextTurnStrategylet
+class DuplicatesCardTypes : INextTurnStrategylet
 {
-    public static DuplicatesCardTypesFirstStrategylet Singleton { get; } = new();
-    private DuplicatesCardTypesFirstStrategylet() { }
-
     public IReadOnlyList<Card> FilterOptions(IReadOnlyList<Card> hand, IReadOnlyList<Card> remainingOptions, Card currentTopCard)
     {
         var playableCardsByType = new Dictionary<ICardType, List<Card>>();

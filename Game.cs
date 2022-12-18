@@ -1,31 +1,30 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using TrivialUno.CardEffects;
 using TrivialUno.CardTypes;
 
 namespace TrivialUno;
 
-public class Game
+class Game
 {
     private readonly Random _random;
     private readonly Players _players;
     private readonly ILogger<Game> _logger;
-    private readonly Stack<Card> _drawStack = CardTypeManager.Singleton.GenerateDrawStack();
+    private readonly Stack<Card> _drawStack;
     private readonly Stack<Card> _playStack = new();
     private readonly PlayerTurnOrder _playerTurnOder;
-    public Game(ILogger<Game> logger, Random rand, Players players, PlayerTurnOrder turnOder)
+    private bool _ended = false;
+
+    public Game(ILogger<Game> logger, Random rand, Players players, PlayerTurnOrder turnOder, CardTypeManager cardTypeManager)
     {
         _logger = logger;
         _random = rand;
         _players = players;
         _playerTurnOder = turnOder;
+        _drawStack = cardTypeManager.GenerateDrawStack();
     }
 
     private const uint StartingCards = 3;
 
     public Card CurrentTopCard => _playStack.Peek();
-
-    public bool Ended { get; private set; } = false;
 
     public void SetupPhase()
     {
@@ -40,6 +39,15 @@ public class Game
                 player.DrawCard(this);
         }
         _logger.LogInformation("All players drew {} cards", StartingCards);
+    }
+
+    public async Task Run()
+    {
+        while (!_ended)
+        {
+            Advance();
+            await Task.Delay(0);
+        }
     }
 
     public Card DrawCard()
@@ -102,12 +110,12 @@ public class Game
 
     internal void Advance()
     {
-        if (Ended) throw new InvalidOperationException();
+        if (_ended) throw new InvalidOperationException();
         var player = _playerTurnOder?.Current ?? throw new InvalidOperationException();
 
         if (player.NextTurn(this))
         {
-            Ended = true;
+            _ended = true;
             _logger.LogInformation("{} wins", player);
             return;
         }

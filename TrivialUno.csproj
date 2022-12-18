@@ -14,4 +14,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- implicit global using -->
+    <Using Include="System.Collections" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
 </Project>

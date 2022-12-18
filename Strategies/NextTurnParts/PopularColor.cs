@@ -1,12 +1,9 @@
 using TrivialUno.CardTypes;
 
-namespace TrivialUno.Strategies;
+namespace TrivialUno.Strategies.NextTurnParts;
 
-class PopularColorStrategylet : INextTurnStrategylet
+class PopularColor : INextTurnStrategylet
 {
-    public static PopularColorStrategylet Singleton { get; } = new();
-    private PopularColorStrategylet() { }
-
     public IReadOnlyList<Card> FilterOptions(IReadOnlyList<Card> hand, IReadOnlyList<Card> remainingOptions, Card currentTopCard)
     {
         var cardsByColor = new Dictionary<CardColor, List<Card>>();

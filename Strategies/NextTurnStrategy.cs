@@ -1,27 +1,24 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace TrivialUno.Strategies;
 
-public interface INextTurnStrategylet
+interface INextTurnStrategylet
 {
     public IReadOnlyList<Card> FilterOptions(IReadOnlyList<Card> hand, IReadOnlyList<Card> remainingOptions, Card currentTopCard);
 }
 
-public class NextTurnStrategy
+abstract class Strategy
 {
-    private readonly ILogger<NextTurnStrategy> _logger;
-    public NextTurnStrategy(ILogger<NextTurnStrategy> logger)
+    protected ILogger<Strategy> Logger { get; }
+    protected List<INextTurnStrategylet> NextTurn { get; } = new();
+    public Strategy(ILogger<Strategy> logger, NextTurnParts.Playable playablePart)
     {
-        _logger = logger;
+        Logger = logger;
+        NextTurn.Add(playablePart);
     }
-
-    public required INextTurnStrategylet[] Strategylets { private get; set; }
 
     public Card? GetNextTurn(IReadOnlyList<Card> hand, Card currentTopCard)
     {
         var remainingOptions = hand;
-        foreach (var strategylet in Strategylets)
+        foreach (var strategylet in NextTurn)
         {
             remainingOptions = strategylet.FilterOptions(hand, remainingOptions, currentTopCard);
             if (remainingOptions.Count == 0)
@@ -30,50 +27,9 @@ public class NextTurnStrategy
                 return remainingOptions[0];
         }
 
-        _logger.LogWarning("Cannot decide between the following cards: {}", remainingOptions);
+        Logger.LogWarning("Cannot decide between the following cards: {}", remainingOptions);
         return remainingOptions[0];
     }
 
-    public override string ToString() => $"[Strategy {Strategylets.Select(s => s.GetType().Name).Aggregate((a, b) => $"{a}, {b}")}]";
-}
-
-public class StrategyManager
-{
-    private Dictionary<string, NextTurnStrategy> _strategies;
-    public StrategyManager(IServiceProvider provider)
-    {
-        var fifo = provider.GetRequiredService<NextTurnStrategy>();
-        fifo.Strategylets = new INextTurnStrategylet[] {
-            PlayableStrategylet.Singleton,
-            FiFoStrategylet.Singleton,
-        };
-
-        var duplicates = provider.GetRequiredService<NextTurnStrategy>();
-        duplicates.Strategylets = new INextTurnStrategylet[] {
-            PlayableStrategylet.Singleton,
-            DuplicatesCardTypesFirstStrategylet.Singleton,
-            FiFoStrategylet.Singleton,
-        };
-
-        var complex = provider.GetRequiredService<NextTurnStrategy>();
-        complex.Strategylets = new INextTurnStrategylet[] {
-            PlayableStrategylet.Singleton,
-            PopularColorStrategylet.Singleton,
-            DuplicatesCardTypesFirstStrategylet.Singleton,
-            FiFoStrategylet.Singleton,
-        };
-
-        _strategies = new()
-        {
-            { "FiFo", fifo },
-            { "Duplicates", duplicates },
-            { "Complex", complex },
-        };
-    }
-
-
-    public NextTurnStrategy GetNextTurnStrategy(string name)
-    {
-        return _strategies[name];
-    }
+    public override string ToString() => $"[Strategy {NextTurn.Select(s => s.GetType().Name).Aggregate((a, b) => $"{a}, {b}")}]";
 }
