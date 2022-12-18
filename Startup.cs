@@ -10,6 +10,7 @@ static class Startup
         .AddSingleton<Strategies.NextTurnParts.DuplicatesCardTypes>()
         .AddSingleton<Strategies.NextTurnParts.FirstDrawnFirstPlayed>()
         .AddSingleton<Strategies.NextTurnParts.Playable>()
+        .AddSingleton<Strategies.NextTurnParts.RandomChoice>()
         .AddSingleton<Strategies.NextTurnParts.PopularColor>()
         .AddSingleton<GameRules>()
         .AddScoped<PlayerTurnOrder>()
