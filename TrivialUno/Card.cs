@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
 using TrivialUno.CardEffects;
-using TrivialUno.CardTypes;
 using TrivialUno.Definitions;
 
 namespace TrivialUno;
@@ -26,11 +25,9 @@ sealed class Card : ICard
         var builder = new StringBuilder("[Card");
         if (CardType is IColoredCardType typeColored)
             builder.Append(CultureInfo.InvariantCulture, $" {typeColored.Color}");
-        if (CardType is IBlackCardType)
-            builder.Append(CultureInfo.InvariantCulture, $" Black");
         if (CardType is INumberedCardType typeNumbered)
             builder.Append(CultureInfo.InvariantCulture, $" {typeNumbered.Number}");
-        if (CardType is IEffectCardType typeEffect)
+        /*if (CardType is IEffectCardType typeEffect)
         {
             foreach (var effect in typeEffect.CardEffects)
             {
@@ -39,7 +36,7 @@ sealed class Card : ICard
                 if (effect is ChooseColorEffect)
                     builder.Append(" ChooseColor");
             }
-        }
+        }*/
         builder.Append(']');
         return builder.ToString();
     }

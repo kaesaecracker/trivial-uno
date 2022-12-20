@@ -1,14 +1,11 @@
 using TrivialUno.CardEffects;
 using TrivialUno.Definitions;
+using TrivialUno.Definitions.Annotations;
 
 namespace TrivialUno.CardTypes;
 
-public sealed class BlackReverseCard : IBlackCardType, IEffectCardType
+[DuplicatesPerDeck(2)]
+[HasEffect(typeof(ReverseEffect))]
+public sealed class BlackReverseCard : ICardType
 {
-    public uint CardsInDeck => 2;
-
-    public IReadOnlyList<ICardEffect> CardEffects { get; } = new List<ICardEffect>()
-    {
-        new ReverseEffect()
-    };
 }

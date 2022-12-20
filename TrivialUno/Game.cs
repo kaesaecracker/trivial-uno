@@ -1,5 +1,4 @@
 using TrivialUno.CardEffects;
-using TrivialUno.CardTypes;
 using TrivialUno.Definitions;
 
 namespace TrivialUno;
@@ -9,10 +8,9 @@ sealed class Game
     private readonly Random _random;
     private readonly Players _players;
     private readonly ILogger<Game> _logger;
-    private readonly Stack<ICard> _drawStack;
     private readonly GameRules _rules;
-    private readonly Stack<ICard> _discardPile = new();
     private readonly PlayerTurnOrder _playerTurnOder;
+    private readonly Deck _deck;
     private ICard? lastPlayedCard;
 
     public Game(ILogger<Game> logger, Random rand, Players players, PlayerTurnOrder turnOder, CardTypeManager cardTypeManager, GameRules rules)
@@ -21,13 +19,14 @@ sealed class Game
         _random = rand;
         _players = players;
         _playerTurnOder = turnOder;
-        _drawStack = cardTypeManager.GenerateDrawStack();
+        _deck = cardTypeManager.GenerateNewDeck();
         _rules = rules;
     }
 
     private void SetupPhase()
     {
         using var scope = _logger.BeginScope("setup phase");
+        _deck.Shuffle(_random);
 
         _logger.LogInformation("All players will now draw {} cards", _rules.StartingCardsPerPlayer);
         for (int i = 0; i < _rules.StartingCardsPerPlayer; i++)
@@ -39,6 +38,13 @@ sealed class Game
         LastPlayedCard = TakeFromDrawStack();
         PlayCard(LastPlayedCard);
         _logger.LogInformation("First Card: {}", LastPlayedCard);
+    }
+
+    private ICard TakeFromDrawStack()
+    {
+        if (_deck.CardsRemaining == 0)
+            _deck.Shuffle(_random);
+        return _deck.Draw();
     }
 
     public ICard LastPlayedCard
@@ -56,55 +62,27 @@ sealed class Game
         }
     }
 
-    private ICard TakeFromDrawStack()
-    {
-        if (!_drawStack.Any())
-            ShuffleDiscardPileIntoDrawStack();
-        if (!_drawStack.TryPop(out var card))
-            throw new NotEnoughCardsException("did not have enough cards while drawing a card");
-        _logger.LogDebug("took {} from draw stack", card);
-        return card;
-    }
-
-    private void ShuffleDiscardPileIntoDrawStack()
-    {
-        _logger.LogInformation("Shuffling discard pile into draw stack");
-        var cardsToShuffle = _discardPile.Union(_drawStack).ToArray();
-        _random.Shuffle(cardsToShuffle);
-
-        _discardPile.Clear();
-        _drawStack.Clear();
-        foreach (var item in cardsToShuffle)
-            _drawStack.Push(item);
-    }
-
     private void PlayCard(ICard card)
     {
         LastPlayedCard = card;
-        if (card.CardType is IEffectCardType effectCardType)
-        {
-            using var scope = _logger.BeginScope("effects of {Card}", card);
-            foreach (var effect in effectCardType.CardEffects)
-                HandleEffect(effect);
-        }
-        _discardPile.Push(card);
-    }
-
-    private void DiscardCard(ICard card)
-    {
-        _logger.LogInformation("Discarding {}", card);
-        _discardPile.Push(card);
+        //if (card.CardType is IEffectCardType effectCardType)
+        //{
+        //    using var scope = _logger.BeginScope("effects of {Card}", card);
+        //    foreach (var effect in effectCardType.CardEffects)
+        //        HandleEffect(effect);
+        //}
+        _deck.Discard(card);
     }
 
     private void HandleEffect(ICardEffect effect)
     {
         switch (effect)
         {
-            case ForceNextPlayerDrawEffect draw:
-                _logger.LogInformation("the played card forces {} to draw {} cards", _playerTurnOder.Next, draw.CardsToDraw);
-                for (int i = 0; i < draw.CardsToDraw; i++)
-                    _playerTurnOder.Next.DrawCard(TakeFromDrawStack());
-                break;
+            //case ForceNextPlayerDrawEffect draw:
+            //    _logger.LogInformation("the played card forces {} to draw {} cards", _playerTurnOder.Next, draw.CardsToDraw);
+            //    for (int i = 0; i < draw.CardsToDraw; i++)
+            //        _playerTurnOder.Next.DrawCard(TakeFromDrawStack());
+            //    break;
             case ReverseEffect:
                 _playerTurnOder.ReverseOrder();
                 break;
@@ -144,7 +122,7 @@ sealed class Game
             _logger.LogInformation("{} has to discard cards because he has {} out of {}", player, player.CardsLeft, _rules.MaxCardsInHand);
             while (player.CardsLeft > _rules.MaxCardsInHand)
             {
-                DiscardCard(player.ChooseCardToDiscard());
+                _deck.Discard(player.ChooseCardToDiscard());
             }
         }
 

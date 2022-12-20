@@ -1,14 +1,11 @@
 using TrivialUno.CardEffects;
 using TrivialUno.Definitions;
+using TrivialUno.Definitions.Annotations;
 
 namespace TrivialUno.CardTypes.Default;
 
-public sealed class BlackColorChooseCardType : IEffectCardType, IBlackCardType
+[DuplicatesPerDeck(4)]
+[HasEffect(typeof(ChooseColorEffect))]
+public sealed class BlackColorChooseCardType : ICardType
 {
-    public uint CardsInDeck => 4;
-
-    public IReadOnlyList<ICardEffect> CardEffects { get; } = new List<ICardEffect>()
-    {
-        new ChooseColorEffect()
-    };
 }

@@ -1,15 +1,12 @@
 using TrivialUno.CardEffects;
 using TrivialUno.Definitions;
+using TrivialUno.Definitions.Annotations;
 
 namespace TrivialUno.CardTypes.Default;
 
-public sealed class BlackDrawCardType : IEffectCardType, IBlackCardType
+[DuplicatesPerDeck(4)]
+[HasEffect(typeof(ChooseColorEffect))]
+[HasEffect(typeof(ForceNextPlayerDraw4Effect))]
+public sealed class BlackDrawCardType : ICardType
 {
-    public uint CardsInDeck => 4;
-
-    public IReadOnlyList<ICardEffect> CardEffects { get; } = new List<ICardEffect>()
-    {
-        new ChooseColorEffect(),
-        new ForceNextPlayerDrawEffect { CardsToDraw = 4 }
-    };
 }

@@ -1,10 +1,13 @@
+using TrivialUno.CardTypes.Default;
+using TrivialUno.Definitions;
+
 namespace TrivialUno;
 
 static class Startup
 {
     internal static IServiceCollection AddGame(this IServiceCollection services) => services
         .AddHostedService<TestGameHostedService>()
-        .AddSingleton<CardTypes.CardTypeManager>()
+        .AddCardTypeManager(ConfigureCardTypes)
         .AddSingleton<Strategies.FiFoStrategy>()
         .AddSingleton<Strategies.DuplicatesFirstStrategy>()
         .AddSingleton<Strategies.NextTurnParts.DuplicatesCardTypes>()
@@ -29,5 +32,11 @@ static class Startup
             opts.SingleLine = true;
         });
 
-
+    internal static void ConfigureCardTypes(ICardTypeManagerBuilder builder) => builder
+        .AddCardType<ColoredDrawCardType>()
+        .AddCardType<ColoredReverseCard>()
+        .AddCardType<ColoredZeroCardType>()
+        .AddCardType<ColoredNumberCardType>()
+        .AddCardType<BlackDrawCardType>()
+        .AddCardType<BlackColorChooseCardType>();
 }

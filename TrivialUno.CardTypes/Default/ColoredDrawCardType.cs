@@ -1,16 +1,13 @@
 using TrivialUno.CardEffects;
 using TrivialUno.Definitions;
+using TrivialUno.Definitions.Annotations;
 
 namespace TrivialUno.CardTypes.Default;
 
-public sealed class ColoredDrawCardType : IColoredCardType, IEffectCardType
+[DuplicatesPerDeck(2)]
+[OneVariantPerColor]
+[HasEffect(typeof(ForceNextPlayerDraw2Effect))]
+public sealed class ColoredDrawCardType : IColoredCardType
 {
-    public required CardColor Color { get; init; }
-
-    public uint CardsInDeck => 2;
-
-    public IReadOnlyList<ICardEffect> CardEffects { get; } = new List<ICardEffect>()
-    {
-        new ForceNextPlayerDrawEffect { CardsToDraw = 2 }
-    };
+    public required CardColor Color { get; set; }
 }
