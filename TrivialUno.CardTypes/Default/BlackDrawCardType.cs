@@ -1,6 +1,6 @@
 using TrivialUno.CardEffects;
 using TrivialUno.Definitions;
-using TrivialUno.Definitions.Annotations;
+using TrivialUno.Definitions.Attributes;
 
 namespace TrivialUno.CardTypes.Default;
 
@@ -9,4 +9,5 @@ namespace TrivialUno.CardTypes.Default;
 [HasEffect(typeof(ForceNextPlayerDraw4Effect))]
 public sealed class BlackDrawCardType : ICardType
 {
+    public string Name => "+4";
 }

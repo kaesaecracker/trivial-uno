@@ -1,4 +1,4 @@
-namespace TrivialUno.Definitions.Annotations;
+namespace TrivialUno.Definitions.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class HasEffectAttribute : Attribute

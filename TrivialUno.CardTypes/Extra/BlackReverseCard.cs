@@ -1,6 +1,6 @@
 using TrivialUno.CardEffects;
 using TrivialUno.Definitions;
-using TrivialUno.Definitions.Annotations;
+using TrivialUno.Definitions.Attributes;
 
 namespace TrivialUno.CardTypes;
 
@@ -8,4 +8,5 @@ namespace TrivialUno.CardTypes;
 [HasEffect(typeof(ReverseEffect))]
 public sealed class BlackReverseCard : ICardType
 {
+    public string Name => "reverse";
 }

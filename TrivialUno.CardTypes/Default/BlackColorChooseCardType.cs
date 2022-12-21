@@ -1,6 +1,6 @@
 using TrivialUno.CardEffects;
 using TrivialUno.Definitions;
-using TrivialUno.Definitions.Annotations;
+using TrivialUno.Definitions.Attributes;
 
 namespace TrivialUno.CardTypes.Default;
 
@@ -8,4 +8,5 @@ namespace TrivialUno.CardTypes.Default;
 [HasEffect(typeof(ChooseColorEffect))]
 public sealed class BlackColorChooseCardType : ICardType
 {
+    public string Name => "ColorChooser";
 }

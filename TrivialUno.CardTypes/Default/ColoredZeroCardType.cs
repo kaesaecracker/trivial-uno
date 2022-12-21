@@ -1,5 +1,5 @@
 using TrivialUno.Definitions;
-using TrivialUno.Definitions.Annotations;
+using TrivialUno.Definitions.Attributes;
 
 namespace TrivialUno.CardTypes.Default;
 
@@ -7,4 +7,6 @@ namespace TrivialUno.CardTypes.Default;
 public sealed class ColoredZeroCardType : IColoredCardType
 {
     public required CardColor Color { get; set; }
+
+    public string Name => $"{Color} 0";
 }

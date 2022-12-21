@@ -2,6 +2,7 @@ namespace TrivialUno.Definitions;
 
 public interface ICardType
 {
+    public string Name { get; }
 }
 
 public interface IColoredCardType : ICardType

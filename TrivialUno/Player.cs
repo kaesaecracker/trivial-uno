@@ -27,14 +27,10 @@ sealed class Players : IEnumerable<Player>
 sealed class Player
 {
     private readonly ILogger _logger;
-    private readonly Game _game;
-    private readonly GameRules _rules;
 
-    public Player(ILogger<Player> logger, Game game, GameRules rules)
+    public Player(ILogger<Player> logger)
     {
         _logger = logger;
-        _game = game;
-        _rules = rules;
     }
 
     public required string Name { private get; set; }
