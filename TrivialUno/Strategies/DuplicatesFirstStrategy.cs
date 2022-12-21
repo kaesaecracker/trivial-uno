@@ -3,9 +3,9 @@ namespace TrivialUno.Strategies;
 sealed class DuplicatesFirstStrategy : Strategy
 {
     public DuplicatesFirstStrategy(
-        ILogger<Strategy> logger, NextTurnParts.Playable playablePart,
+        ILogger<Strategy> logger,
         NextTurnParts.DuplicatesCardTypes duplicatesPart, NextTurnParts.RandomChoice randomPart, NextTurnParts.PopularColor popularColorPart)
-        : base(logger, playablePart)
+        : base(logger)
     {
         NextTurn.Add(duplicatesPart);
         NextTurn.Add(popularColorPart);

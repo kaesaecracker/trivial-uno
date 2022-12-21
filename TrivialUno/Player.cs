@@ -24,7 +24,7 @@ sealed class Players : IEnumerable<Player>
     public int Count => _allPlayers.Count;
 }
 
-sealed class Player
+sealed class Player : IPlayer
 {
     private readonly ILogger _logger;
 
@@ -41,15 +41,15 @@ sealed class Player
 
     private readonly List<ICard> _hand = new();
 
-    public void DrawCard(ICard card)
+    public void PickupCard(ICard card)
     {
         _logger.LogInformation("{} draws {}", this, card);
         _hand.Add(card);
     }
 
-    public ICard? ChooseCardToPlay(ICard lastPlayedCard)
+    public ICard? ChooseCardToPlay(Func<ICard, bool> canBePlayed)
     {
-        var card = _hand.Count == 0 ? null : PlayCardStrategy.GetNextTurn(_hand.AsReadOnly(), lastPlayedCard);
+        var card = _hand.Count == 0 ? null : PlayCardStrategy.GetNextTurn(_hand.AsReadOnly(), canBePlayed);
         if (card != null)
             _hand.Remove(card);
         return card;

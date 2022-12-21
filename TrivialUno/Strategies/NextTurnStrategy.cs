@@ -4,25 +4,24 @@ namespace TrivialUno.Strategies;
 
 interface INextTurnStrategylet
 {
-    public IReadOnlyList<ICard> FilterOptions(IReadOnlyList<ICard> hand, IReadOnlyList<ICard> remainingOptions, ICard currentTopCard);
+    public IReadOnlyList<ICard> FilterOptions(IReadOnlyList<ICard> hand, IReadOnlyList<ICard> remainingOptions);
 }
 
 abstract class Strategy
 {
     protected ILogger<Strategy> Logger { get; }
     protected List<INextTurnStrategylet> NextTurn { get; } = new();
-    public Strategy(ILogger<Strategy> logger, NextTurnParts.Playable playablePart)
+    public Strategy(ILogger<Strategy> logger)
     {
         Logger = logger;
-        NextTurn.Add(playablePart);
     }
 
-    public ICard? GetNextTurn(IReadOnlyList<ICard> hand, ICard currentTopCard)
+    public ICard? GetNextTurn(IReadOnlyList<ICard> hand, Func<ICard, bool> canBePlayed)
     {
-        var remainingOptions = hand;
+        IReadOnlyList<ICard> remainingOptions = hand.Where(canBePlayed).ToList();
         foreach (var strategylet in NextTurn)
         {
-            remainingOptions = strategylet.FilterOptions(hand, remainingOptions, currentTopCard);
+            remainingOptions = strategylet.FilterOptions(hand, remainingOptions);
             if (remainingOptions.Count == 0)
                 return null;
             if (remainingOptions.Count == 1)

@@ -1,6 +1,8 @@
+using TrivialUno.Definitions;
+
 namespace TrivialUno;
 
-sealed class PlayerTurnOrder
+sealed class PlayerTurnOrder : IPlayerTurnOrder
 {
     private readonly ILogger<PlayerTurnOrder> _logger;
     private readonly Players _players;
@@ -14,21 +16,20 @@ sealed class PlayerTurnOrder
     private int _currentIndex;
     private int _direction = 1;
 
-    public Player Current => _players.Count == 0 ? ThrowNoPlayers() : _players[_currentIndex];
+    public IPlayer Current => _players.Count == 0 ? ThrowNoPlayers() : _players[_currentIndex];
 
-    public Player Next => _players.Count == 0 ? ThrowNoPlayers() : _players[GetNextIndex()];
+    public IPlayer Next => _players.Count == 0 ? ThrowNoPlayers() : _players[GetNextIndex()];
 
     private static Player ThrowNoPlayers() => throw new InvalidOperationException("no players added");
 
-    public bool EndTurnOfCurrentPlayer()
+    public void MoveNext()
     {
         var oldIndex = _currentIndex;
         _currentIndex = GetNextIndex();
         _logger.LogDebug("MoveNext moving from {} to {} with direction {}", oldIndex, _currentIndex, _direction);
-        return true;
     }
 
-    public void ReverseOrder()
+    public void Reverse()
     {
         _direction = -_direction;
         _logger.LogInformation("player order reversed");

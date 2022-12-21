@@ -1,7 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using TrivialUno.CardEffects;
-using TrivialUno.Definitions;
+﻿using TrivialUno.Definitions;
 
 namespace TrivialUno;
 

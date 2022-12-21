@@ -1,7 +1,7 @@
 namespace TrivialUno.Definitions.Attributes;
 
 [AttributeUsage(AttributeTargets.Class)]
-public sealed class DuplicatesPerDeckAttribute : Attribute
+public sealed class DuplicatesPerDeckAttribute : UnoAttribute
 {
     public DuplicatesPerDeckAttribute(int cardsPerDeck)
     {

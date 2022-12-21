@@ -2,17 +2,26 @@ using TrivialUno.Definitions;
 
 namespace TrivialUno.CardEffects;
 
-public interface IForceNextPlayerDrawEffect : ICardEffect
+public abstract class ForceNextPlayerDrawEffect : ICardEffect
 {
-    public uint CardsToDraw { get; }
+    internal ForceNextPlayerDrawEffect() { }
+
+    public abstract uint CardsToDraw { get; }
+
+    public void Apply(IGame game)
+    {
+        var playerToDraw = game.PlayerTurnOrder.Next;
+        for (int i = 0; i < CardsToDraw; i++)
+            game.GiveCardTo(playerToDraw);
+    }
 }
 
-public class ForceNextPlayerDraw2Effect : IForceNextPlayerDrawEffect
+public class ForceNextPlayerDraw2Effect : ForceNextPlayerDrawEffect
 {
-    public uint CardsToDraw => 2;
+    public override uint CardsToDraw => 2;
 }
 
-public class ForceNextPlayerDraw4Effect : IForceNextPlayerDrawEffect
+public class ForceNextPlayerDraw4Effect : ForceNextPlayerDrawEffect
 {
-    public uint CardsToDraw => 4;
+    public override uint CardsToDraw => 4;
 }

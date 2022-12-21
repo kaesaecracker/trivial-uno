@@ -1,7 +1,7 @@
 namespace TrivialUno.Definitions.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class HasEffectAttribute : Attribute
+public sealed class HasEffectAttribute : UnoAttribute
 {
     public HasEffectAttribute(Type effect)
     {

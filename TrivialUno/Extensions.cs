@@ -18,4 +18,12 @@ static class StaticStuff
     {
         return cards.Select(c => c.ToString()).Aggregate((a, b) => $"{a}, {b}") ?? "";
     }
+
+    public static IServiceCollection AddCardTypeManager(this IServiceCollection services, Action<ICardTypeManagerBuilder> buildAction) => services
+        .AddSingleton(services =>
+        {
+            var ctmBuilder = new CardTypeManagerBuilder(services);
+            buildAction(ctmBuilder);
+            return ctmBuilder.Build();
+        });
 }

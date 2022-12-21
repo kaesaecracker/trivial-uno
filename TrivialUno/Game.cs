@@ -1,15 +1,13 @@
-using TrivialUno.CardEffects;
 using TrivialUno.Definitions;
 
 namespace TrivialUno;
 
-sealed class Game
+sealed class Game : IGame
 {
     private readonly Random _random;
     private readonly Players _players;
     private readonly ILogger<Game> _logger;
     private readonly GameRules _rules;
-    private readonly PlayerTurnOrder _playerTurnOder;
     private readonly Deck _deck;
     private ICard? lastPlayedCard;
 
@@ -18,10 +16,19 @@ sealed class Game
         _logger = logger;
         _random = rand;
         _players = players;
-        _playerTurnOder = turnOder;
+        PlayerTurnOrder = turnOder;
         _deck = cardTypeManager.GenerateNewDeck();
         _rules = rules;
     }
+
+    public ICard LastPlayedCard
+    {
+        get => lastPlayedCard ?? throw new InvalidOperationException();
+        private set => lastPlayedCard = value;
+    }
+
+    public IPlayerTurnOrder PlayerTurnOrder { get; }
+
 
     private void SetupPhase()
     {
@@ -32,7 +39,7 @@ sealed class Game
         for (int i = 0; i < _rules.StartingCardsPerPlayer; i++)
         {
             foreach (var player in _players)
-                player.DrawCard(TakeFromDrawStack());
+                GiveCardTo(player);
         }
 
         LastPlayedCard = TakeFromDrawStack();
@@ -45,12 +52,6 @@ sealed class Game
         if (_deck.CardsRemaining == 0)
             _deck.Shuffle(_random);
         return _deck.Draw();
-    }
-
-    public ICard LastPlayedCard
-    {
-        get => lastPlayedCard ?? throw new InvalidOperationException();
-        private set => lastPlayedCard = value;
     }
 
     public async Task Run(CancellationToken cancellationToken)
@@ -74,38 +75,20 @@ sealed class Game
         _deck.Discard(card);
     }
 
-    private void HandleEffect(ICardEffect effect)
-    {
-        switch (effect)
-        {
-            //case ForceNextPlayerDrawEffect draw:
-            //    _logger.LogInformation("the played card forces {} to draw {} cards", _playerTurnOder.Next, draw.CardsToDraw);
-            //    for (int i = 0; i < draw.CardsToDraw; i++)
-            //        _playerTurnOder.Next.DrawCard(TakeFromDrawStack());
-            //    break;
-            case ReverseEffect:
-                _playerTurnOder.ReverseOrder();
-                break;
-            default:
-                throw new NotImplementedException($"Effect of type {effect.GetType().Name} not implemeneted");
-        }
-    }
-
     internal bool Advance()
     {
-        var player = _playerTurnOder.Current;
+        var player = PlayerTurnOrder.Current;
         _logger.LogDebug("Starting turn of {}", player);
 
-        var playerChoosenCard = player.ChooseCardToPlay(LastPlayedCard);
+        var playerChoosenCard = player.ChooseCardToPlay(CanBePlayed);
         if (playerChoosenCard == null)
         {
-            var drawCard = TakeFromDrawStack();
-            player.DrawCard(drawCard);
-            _playerTurnOder.EndTurnOfCurrentPlayer();
+            GiveCardTo(player);
+            PlayerTurnOrder.MoveNext();
             return true;
         }
 
-        if (!playerChoosenCard.CanBePlayedOn(LastPlayedCard))
+        if (!CanBePlayed(LastPlayedCard))
             throw new IllegalMoveException($"{player} tried to play {playerChoosenCard} onto {LastPlayedCard}!");
 
         PlayCard(playerChoosenCard);
@@ -126,7 +109,18 @@ sealed class Game
             }
         }
 
-        _playerTurnOder.EndTurnOfCurrentPlayer();
+        PlayerTurnOrder.MoveNext();
         return true;
+    }
+
+    public void GiveCardTo(IPlayer playerToDraw)
+    {
+        var drawCard = TakeFromDrawStack();
+        playerToDraw.PickupCard(drawCard);
+    }
+
+    public bool CanBePlayed(ICard card)
+    {
+        return card.CanBePlayedOn(LastPlayedCard);
     }
 }

@@ -4,7 +4,7 @@ namespace TrivialUno.Strategies.NextTurnParts;
 
 sealed class DuplicatesCardTypes : INextTurnStrategylet
 {
-    public IReadOnlyList<ICard> FilterOptions(IReadOnlyList<ICard> hand, IReadOnlyList<ICard> remainingOptions, ICard currentTopCard)
+    public IReadOnlyList<ICard> FilterOptions(IReadOnlyList<ICard> hand, IReadOnlyList<ICard> remainingOptions)
     {
         var playableCardsByType = new Dictionary<ICardType, List<ICard>>();
         foreach (var option in remainingOptions)
