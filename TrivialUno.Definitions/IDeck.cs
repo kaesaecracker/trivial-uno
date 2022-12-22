@@ -2,7 +2,7 @@ namespace TrivialUno.Definitions;
 
 public interface IDeck
 {
-    void Shuffle(Random rand);
+    void Shuffle();
 
     void Discard(ICard card);
 

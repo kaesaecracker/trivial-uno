@@ -1,6 +1,9 @@
 namespace TrivialUno.Definitions;
 
-public interface IGame : IReadOnlyGame, IWriteOnlyGame { }
+public interface IGame : IReadOnlyGame, IWriteOnlyGame
+{
+    Task Run(CancellationToken cancellationToken);
+}
 
 public interface IWriteOnlyGame
 {

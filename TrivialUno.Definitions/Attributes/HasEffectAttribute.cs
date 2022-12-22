@@ -3,11 +3,12 @@ namespace TrivialUno.Definitions.Attributes;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class HasEffectAttribute : UnoAttribute
 {
-    public HasEffectAttribute(Type effect)
+    public HasEffectAttribute(Type effectType)
     {
-        if (!effect.IsAssignableTo(typeof(ICardEffect)))
-            throw new ArgumentException($"Type has to implement {nameof(ICardEffect)}", nameof(effect));
-        EffectType = effect;
+        ArgumentNullException.ThrowIfNull(effectType);
+        if (!effectType.IsAssignableTo(typeof(ICardEffect)))
+            throw new ArgumentException($"Type has to implement {nameof(ICardEffect)}", nameof(effectType));
+        EffectType = effectType;
     }
 
     public Type EffectType { get; }
