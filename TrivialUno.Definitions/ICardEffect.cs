@@ -2,5 +2,5 @@ namespace TrivialUno.Definitions;
 
 public interface ICardEffect
 {
-    public void Apply(IGame game);
+    public Action<IWriteOnlyGame> Apply(IReadOnlyGame game);
 }

@@ -8,12 +8,16 @@ public abstract class ForceNextPlayerDrawEffect : ICardEffect
 
     public abstract uint CardsToDraw { get; }
 
-    public void Apply(IGame game)
+    public Action<IWriteOnlyGame> Apply(IReadOnlyGame game)
     {
-        var playerToDraw = game.PlayerTurnOrder.Next;
-        for (int i = 0; i < CardsToDraw; i++)
-            game.GiveCardTo(playerToDraw);
-        game.PlayerTurnOrder.Skip(1);
+        var playerToDraw = game.NextPlayer;
+        return actions =>
+        {
+            var modifiablePlayer = actions.ToWriteOnly(playerToDraw);
+            for (int i = 0; i < CardsToDraw; i++)
+                actions.GiveCardTo(modifiablePlayer);
+            actions.SkipTurns(1);
+        };
     }
 }
 

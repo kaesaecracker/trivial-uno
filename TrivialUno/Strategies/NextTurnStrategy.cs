@@ -2,7 +2,7 @@ using TrivialUno.Definitions;
 
 namespace TrivialUno.Strategies;
 
-interface INextTurnStrategylet
+interface INextTurnPart
 {
     public IReadOnlyList<ICard> FilterOptions(IReadOnlyList<ICard> hand, IReadOnlyList<ICard> remainingOptions);
 }
@@ -10,7 +10,7 @@ interface INextTurnStrategylet
 abstract class Strategy
 {
     protected ILogger<Strategy> Logger { get; }
-    protected List<INextTurnStrategylet> NextTurn { get; } = new();
+    protected List<INextTurnPart> NextTurn { get; } = new();
     public Strategy(ILogger<Strategy> logger)
     {
         Logger = logger;

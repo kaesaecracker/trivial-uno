@@ -24,7 +24,7 @@ sealed class Players : IEnumerable<Player>
     public int Count => _allPlayers.Count;
 }
 
-sealed class Player : IPlayer
+sealed class Player : IReadOnlyPlayer, IPlayer
 {
     private readonly ILogger _logger;
 
@@ -43,26 +43,43 @@ sealed class Player : IPlayer
 
     public void PickupCard(ICard card)
     {
-        _logger.LogInformation("{} picks up {}", this, card);
         _hand.Add(card);
+        _logger.LogInformation("{} picks up {}, now has {} cards", this, card, _hand.Count);
     }
 
     public ICard? ChooseCardToPlay(Func<ICard, bool> canBePlayed)
     {
         var card = _hand.Count == 0 ? null : PlayCardStrategy.GetNextTurn(_hand.AsReadOnly(), canBePlayed);
-        if (card != null)
-            _hand.Remove(card);
+        if (card != null && !_hand.Remove(card))
+            throw new IllegalMoveException($"The card choosen by {PlayCardStrategy} is not one of the cards in hands of {this}");
         return card;
     }
 
     public ICard ChooseCardToDiscard()
     {
-        // TODO: implement strategies
+        _logger.LogWarning("ChooseCardToDiscard does not have strategies");
         var card = _hand[0];
         _hand.RemoveAt(0);
         return card;
     }
 
-    public override string ToString() => $"[Player {Name}]";
-}
+    public CardColor ChooseColor()
+    {
+        _logger.LogWarning("ChooseFavoriteColor does not have strategies");
+        var cardByColor = _hand.Where(c => c.CardType is IColoredCardType)
+            .Select(c => (IColoredCardType)c.CardType)
+            .GroupBy(c => c.Color)
+            .ToList();
 
+        if (cardByColor.Count == 0)
+            return CardColor.Yellow;
+
+        var maxCardsForColor = cardByColor.Max(group => group.Count());
+        return cardByColor.Where(group => group.Count() == maxCardsForColor)
+            .Select(group => group.Key)
+            .First();
+    }
+
+    public override string ToString() => $"[Player {Name}]";
+
+}

@@ -2,7 +2,7 @@ using TrivialUno.Definitions;
 
 namespace TrivialUno.Strategies.NextTurnParts;
 
-sealed class RandomChoice : INextTurnStrategylet
+sealed class RandomChoice : INextTurnPart
 {
     private readonly Random _random;
     public RandomChoice(Random rand)

@@ -46,18 +46,18 @@ internal sealed class CardTypeManagerBuilder : ICardTypeManagerBuilder
 
     internal CardTypeManager Build()
     {
-        var genDataConstructors = _cardTypeGenerationData.Select(pair => new CardGenDataConstructor(pair.Value, DefaultConstructor(pair.Key)))
+        var cardTypeInfos = _cardTypeGenerationData
+            .Select(pair => new CardGenDataConstructor(pair.Value, DefaultConstructor(pair.Key)))
             .SelectMany(GenerateEffectConstructors)
             .SelectMany(GenerateColoredConstructors)
-            .SelectMany(GenerateNumberedConstructors);
-        var cardTypeDuplicateCountDict = genDataConstructors
-            .Select(gdc => new KeyValuePair<ICardType, int>(gdc.Constructor(), gdc.GenerationData.CardsPerVariant))
-            .ToDictionary(gdc => gdc.Key, gdc => gdc.Value);
-        return new(_services.GetRequiredService<ILogger<CardTypeManager>>())
-        {
-            Types = cardTypeDuplicateCountDict.Keys.ToList(),
-            CardsPerType = cardTypeDuplicateCountDict
-        };
+            .SelectMany(GenerateNumberedConstructors)
+            // actually construct instances and transform to structure needed by CardTypeManager
+            .Select(gdc => new CardTypeInfo(gdc.Constructor(), gdc.GenerationData.CardsPerVariant))
+            .ToList();
+        var deckConstructor = (IEnumerable<ICard> cards) => ActivatorUtilities.CreateInstance<Deck>(_services, cards);
+
+        return ActivatorUtilities.CreateInstance<CardTypeManager>(
+            _services, cardTypeInfos, deckConstructor);
     }
 
     private Func<ICardType> DefaultConstructor(Type t) => () => (ICardType)ActivatorUtilities.CreateInstance(_services, t);

@@ -8,7 +8,10 @@ sealed class Game : IGame
     private readonly Players _players;
     private readonly ILogger<Game> _logger;
     private readonly GameRules _rules;
-    private readonly Deck _deck;
+    private readonly IDeck _deck;
+    private readonly List<IPlayabilityFilter> _playabilityFiltersForNextTurn = new();
+    private readonly PlayerTurnOrder _playerTurnOrder;
+
     private ICard? _lastPlayedCard;
     private int _round;
 
@@ -17,7 +20,7 @@ sealed class Game : IGame
         _logger = logger;
         _random = rand;
         _players = players;
-        PlayerTurnOrder = turnOder;
+        _playerTurnOrder = turnOder;
         _deck = cardTypeManager.GenerateNewDeck();
         _rules = rules;
     }
@@ -28,8 +31,13 @@ sealed class Game : IGame
         set => _lastPlayedCard = value;
     }
 
-    public IPlayerTurnOrder PlayerTurnOrder { get; }
+    public IPlayer CurrentPlayer => _playerTurnOrder.Current;
 
+    IReadOnlyPlayer IReadOnlyGame.CurrentPlayer => CurrentPlayer;
+
+    public IPlayer NextPlayer => _playerTurnOrder.Next;
+
+    IReadOnlyPlayer IReadOnlyGame.NextPlayer => NextPlayer;
 
     private void SetupPhase()
     {
@@ -77,9 +85,9 @@ sealed class Game : IGame
     internal bool Advance()
     {
         _round++;
-        PlayerTurnOrder.MoveNext();
+        _playerTurnOrder.MoveNext();
 
-        var player = PlayerTurnOrder.Current;
+        var player = _playerTurnOrder.Current;
         _logger.LogDebug("State: {}", this);
 
         var playerChoosenCard = player.ChooseCardToPlay(CanBePlayed);
@@ -93,8 +101,8 @@ sealed class Game : IGame
         if (!CanBePlayed(LastPlayedCard))
             throw new IllegalMoveException($"{player} tried to play {playerChoosenCard} onto {LastPlayedCard}!");
 
-        PlayCard(playerChoosenCard);
         _logger.LogInformation("{Player} plays {Card}", player, playerChoosenCard);
+        PlayCard(playerChoosenCard);
 
         if (player.CardsLeft == 0)
         {
@@ -114,14 +122,36 @@ sealed class Game : IGame
         return true;
     }
 
-    public void GiveCardTo(IPlayer playerToDraw)
+    public void GiveCardTo(IWriteOnlyPlayer playerToDraw)
     {
         var drawCard = TakeFromDrawStack();
         playerToDraw.PickupCard(drawCard);
     }
 
+    public void Reverse() => _playerTurnOrder.Reverse();
+
+    public void SkipTurns(int turnsToSkip)
+    {
+        for (int i = 0; i < turnsToSkip; i++)
+            _playerTurnOrder.MoveNext();
+    }
+
+    public void AddPlayabilityFilterForNextTurn(IPlayabilityFilter filter)
+    {
+        _playabilityFiltersForNextTurn.Add(filter);
+    }
+
     public bool CanBePlayed(ICard card)
     {
+        foreach (var filter in _playabilityFiltersForNextTurn)
+        {
+            if (!filter.IsPlayble(card))
+            {
+                _logger.LogTrace("{} cannot be played onto {} because of filter {}", card, LastPlayedCard, filter);
+
+            }
+        }
+
         var result = card.CardType switch
         {
             _ when card.CardType == LastPlayedCard.CardType => true,
@@ -137,5 +167,8 @@ sealed class Game : IGame
         return result;
     }
 
-    public override string ToString() => $"[Game Round={_round} CurrentPlayer={PlayerTurnOrder.Current} LastPlayed={_lastPlayedCard}]";
+    IWriteOnlyPlayer IWriteOnlyGame.ToWriteOnly(IReadOnlyPlayer player) => (Player)player;
+
+    public override string ToString() => $"[Game Round={_round} CurrentPlayer={_playerTurnOrder.Current} LastPlayed={_lastPlayedCard}]";
+
 }

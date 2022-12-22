@@ -2,26 +2,34 @@ using TrivialUno.Definitions;
 
 namespace TrivialUno;
 
+record struct CardTypeInfo(ICardType CardType, int CardsPerDeck);
+
 sealed class CardTypeManager
 {
     private readonly ILogger<CardTypeManager> _logger;
 
-    internal required IReadOnlyList<ICardType> Types { get; init; }
+    private readonly IReadOnlyList<CardTypeInfo> _typeInfos;
+    private readonly Func<IEnumerable<ICard>, Deck> _deckConstructor;
 
-    internal required Dictionary<ICardType, int> CardsPerType { get; init; }
-
-    internal CardTypeManager(ILogger<CardTypeManager> logger)
+    public CardTypeManager(
+        ILogger<CardTypeManager> logger,
+        IReadOnlyList<CardTypeInfo> types,
+        Func<IEnumerable<ICard>, Deck> deckConstructor)
     {
         _logger = logger;
+        _typeInfos = types;
+        _deckConstructor = deckConstructor;
     }
 
-    private IEnumerable<ICard> GenerateCardsForType(ICardType cardType)
+    private IEnumerable<ICard> GenerateCards()
     {
-        var maxCount = CardsPerType[cardType];
-        _logger.LogDebug("Generating {} cards for type [{}]", maxCount, cardType.Name);
-        for (int count = 0; count <= maxCount; count++)
-            yield return new Card { CardType = cardType };
+        foreach (var typeInfo in _typeInfos)
+        {
+            _logger.LogDebug("Generating {} cards for type [{}]", typeInfo.CardsPerDeck, typeInfo.CardType.Name);
+            for (int count = 0; count <= typeInfo.CardsPerDeck; count++)
+                yield return new Card { CardType = typeInfo.CardType };
+        }
     }
 
-    public Deck GenerateNewDeck() => new(Types.SelectMany(GenerateCardsForType));
+    public Deck GenerateNewDeck() => _deckConstructor(GenerateCards());
 }

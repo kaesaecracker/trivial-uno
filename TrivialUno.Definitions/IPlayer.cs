@@ -1,8 +1,11 @@
-using System.Threading.Tasks.Dataflow;
-
 namespace TrivialUno.Definitions;
 
-public interface IPlayer
+public interface IReadOnlyPlayer
+{
+    int CardsLeft { get; }
+}
+
+public interface IWriteOnlyPlayer
 {
     void PickupCard(ICard card);
 
@@ -10,5 +13,9 @@ public interface IPlayer
 
     ICard ChooseCardToDiscard();
 
-    int CardsLeft { get; }
+    CardColor ChooseColor();
+}
+
+public interface IPlayer : IReadOnlyPlayer, IWriteOnlyPlayer
+{
 }

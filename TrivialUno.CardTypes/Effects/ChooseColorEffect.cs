@@ -3,17 +3,22 @@ using TrivialUno.Definitions;
 
 namespace TrivialUno.CardEffects;
 
-public sealed class ChooseColorEffect : ICardEffect
+public sealed record class ChooseColorEffect(ILogger<ChooseColorEffect> Logger) : ICardEffect
 {
-    private readonly ILogger<ChooseColorEffect> _logger;
-
-    public ChooseColorEffect(ILogger<ChooseColorEffect> logger)
+    public Action<IWriteOnlyGame> Apply(IReadOnlyGame game)
     {
-        _logger = logger;
+        var player = game.CurrentPlayer;
+        return actions =>
+        {
+            var color = actions.ToWriteOnly(player).ChooseColor();
+            Logger.LogInformation("The next card to be played has to be {Color}", color);
+            var modifier = new ChosenColorFilter(color);
+            actions.AddPlayabilityFilterForNextTurn(modifier);
+        };
     }
 
-    public void Apply(IGame game)
+    private sealed record class ChosenColorFilter(CardColor Color) : IPlayabilityFilter
     {
-        _logger.LogCritical("ChooseColorEffect is not implemented");
+        public bool IsPlayble(ICard card) => card.CardType is IColoredCardType colored && colored.Color == Color;
     }
 }

@@ -2,7 +2,7 @@ using TrivialUno.Definitions;
 
 namespace TrivialUno.Strategies.NextTurnParts;
 
-sealed class PopularColor : INextTurnStrategylet
+sealed class PopularColor : INextTurnPart
 {
     public IReadOnlyList<ICard> FilterOptions(IReadOnlyList<ICard> hand, IReadOnlyList<ICard> remainingOptions)
     {

@@ -12,7 +12,7 @@ public static class Program
             .CreateDefaultBuilder(args)
             .ConfigureServices((HostBuilderContext _, IServiceCollection services) => services
                 .AddLogging(Startup.ConfigureLoggingBuilder)
-                .AddSingleton(_ => new Random(1)) // for now, a seed can be picked here
+                .AddSingleton(_ => new Random(0)) // for now, a seed can be picked here
                 .AddGame()
             )
             .Build();
