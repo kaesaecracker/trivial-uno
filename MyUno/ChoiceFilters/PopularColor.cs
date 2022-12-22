@@ -14,6 +14,9 @@ sealed class PopularColor : ICardChoiceFilter
             cardsByColor[colored.Color].Add(card);
         }
 
+        if (!cardsByColor.Any())
+            return remainingOptions;
+
         var maxColorCount = cardsByColor.Max(pair => pair.Value.Count);
         return remainingOptions
             .Where(c => c.CardType is not IColoredCardType colored || cardsByColor[colored.Color].Count == maxColorCount)

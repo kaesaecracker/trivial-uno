@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using MyUno.ChoiceFilters;
+using MyUno.CustomCards;
 using TrivialUno.DefaultCards;
 using TrivialUno.Machinery;
 
@@ -22,11 +23,13 @@ public static class Program
 
         await host.RunAsync().ConfigureAwait(false);
     }
+
     internal static IServiceCollection AddGame(this IServiceCollection services) => services
         .AddMachinery()
         .AddCards(builder => builder
             .AddDefaultCards()
             .AddCardType<BlackReverseCard>()
+            .AddCardType<EveryoneDrawsCard>()
         )
         .AddStrategies(builder => builder
             .AddFilteredStrategy("DuplicatesFirst", new Func<IServiceProvider, ICardChoiceFilter>[] {
@@ -43,9 +46,8 @@ public static class Program
     internal static void ConfigureLoggingBuilder(ILoggingBuilder builder) => builder
         .SetMinimumLevel(LogLevel.Trace)
         .AddFilter("System", LogLevel.Warning)
-        .AddFilter("TrivialUno.PlayerTurnOrder", LogLevel.Information)
-        .AddFilter("TrivialUno.CardTypeManager", LogLevel.Information)
-        .AddFilter("TrivialUno.Game", LogLevel.Information)
+        .AddFilter("TrivialUno.Machinery", LogLevel.Debug)
+        .AddFilter("TrivialUno.Machinery.PlayerTurnOrder", LogLevel.Information)
         .AddSimpleConsole(opts =>
         {
             opts.IncludeScopes = true;

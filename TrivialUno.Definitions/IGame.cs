@@ -24,5 +24,7 @@ public interface IReadOnlyGame
 
     IReadOnlyPlayer NextPlayer { get; }
 
+    IEnumerable<IReadOnlyPlayer> AllPlayers();
+
     bool CanBePlayed(ICard card);
 }

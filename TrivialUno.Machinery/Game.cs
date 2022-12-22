@@ -169,4 +169,5 @@ sealed class Game : IGame
 
     public override string ToString() => $"[Game Round={_round} CurrentPlayer={_playerTurnOrder.Current} LastPlayed={_lastPlayedCard}]";
 
+    public IEnumerable<IReadOnlyPlayer> AllPlayers() => _players;
 }

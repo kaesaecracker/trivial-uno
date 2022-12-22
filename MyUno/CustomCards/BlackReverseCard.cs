@@ -1,7 +1,7 @@
 using TrivialUno.DefaultEffects;
 using TrivialUno.Definitions.Attributes;
 
-namespace MyUno;
+namespace MyUno.CustomCards;
 
 [DuplicatesPerDeck(2)]
 [HasEffect(typeof(ReverseEffect))]
