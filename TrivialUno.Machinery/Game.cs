@@ -5,7 +5,7 @@ sealed class Game : IGame
     private readonly Random _random;
     private readonly IPlayers _players;
     private readonly ILogger<Game> _logger;
-    private readonly GameRules _rules;
+    private readonly IGameRules _rules;
     private readonly IDeck _deck;
     private readonly List<IPlayabilityFilter> _playabilityFiltersForNextTurn = new();
     private readonly PlayerTurnOrder _playerTurnOrder;
@@ -13,7 +13,7 @@ sealed class Game : IGame
     private ICard? _lastPlayedCard;
     private int _round;
 
-    public Game(ILogger<Game> logger, Random rand, IPlayers players, PlayerTurnOrder turnOder, ICardTypeManager cardTypeManager, GameRules rules)
+    public Game(ILogger<Game> logger, Random rand, IPlayers players, PlayerTurnOrder turnOder, ICardTypeManager cardTypeManager, IGameRules rules)
     {
         _logger = logger;
         _random = new Random(rand.Next());

@@ -33,6 +33,7 @@ public static class Program
             })
         )
         .AddSingleton(_ => new Random(0)) // for now, a seed can be picked here
+        .AddGameRules<GameRules>()
         .AddMachinery()
         .AddCards(builder => builder
             .AddDefaultCards()

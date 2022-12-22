@@ -20,8 +20,10 @@ public static class ServiceCollectionExtensions
             return ctmBuilder.Build();
         });
 
+    public static IServiceCollection AddGameRules<TImpl>(this IServiceCollection services) where TImpl : IGameRules => services
+        .AddSingleton<IGameRules>(sp => ActivatorUtilities.CreateInstance<TImpl>(sp));
+
     public static IServiceCollection AddMachinery(this IServiceCollection services) => services
-        .AddSingleton<GameRules>()
         .AddScoped<PlayerTurnOrder>()
         .AddScoped<IGame, Game>()
         .AddScoped<IPlayers, Players>()
