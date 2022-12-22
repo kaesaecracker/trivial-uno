@@ -37,6 +37,7 @@
     <!-- components -->
     <ProjectReference Include="..\TrivialUno.Definitions\TrivialUno.Definitions.csproj" />
     <ProjectReference Include="..\TrivialUno.DefaultCards\TrivialUno.DefaultCards.csproj" />
+    <ProjectReference Include="..\TrivialUno.DefaultEffects\TrivialUno.DefaultEffects.csproj" />
     <ProjectReference Include="..\TrivialUno.Machinery\TrivialUno.Machinery.csproj" />
   </ItemGroup>
 
