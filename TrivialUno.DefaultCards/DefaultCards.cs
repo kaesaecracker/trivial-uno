@@ -15,6 +15,7 @@ public static class DefaultCardsExtensions
             .AddCardType<ColoredZeroCardType>()
             .AddCardType<ColoredNumberCardType>()
             .AddCardType<BlackDrawCardType>()
-            .AddCardType<BlackColorChooseCardType>();
+            .AddCardType<BlackColorChooseCardType>()
+            .AddCardType<ColoredSkipCardType>();
     }
 }
