@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TrivialUno.Definitions\TrivialUno.Definitions.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
   </ItemGroup>
 
 </Project>

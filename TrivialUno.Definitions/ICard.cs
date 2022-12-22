@@ -2,7 +2,7 @@ namespace TrivialUno.Definitions;
 
 public interface ICard
 {
-    ICardType CardType { get; init; }
+    ICardType CardType { get; }
 
-    public bool CanBePlayedOn(ICard other);
+    IEnumerable<ICardEffect> GetEffects();
 }

@@ -9,4 +9,6 @@ public interface IPlayerTurnOrder
     public void MoveNext();
 
     public void Reverse();
+
+    void Skip(int v);
 }

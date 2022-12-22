@@ -14,3 +14,8 @@ public interface INumberedCardType : ICardType
 {
     int Number { get; set; }
 }
+
+public interface IEffectCardType : ICardType
+{
+    IReadOnlyList<ICardEffect> Effects { get; set; }
+}

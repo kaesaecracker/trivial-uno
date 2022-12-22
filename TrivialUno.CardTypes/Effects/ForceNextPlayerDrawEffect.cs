@@ -13,6 +13,7 @@ public abstract class ForceNextPlayerDrawEffect : ICardEffect
         var playerToDraw = game.PlayerTurnOrder.Next;
         for (int i = 0; i < CardsToDraw; i++)
             game.GiveCardTo(playerToDraw);
+        game.PlayerTurnOrder.Skip(1);
     }
 }
 

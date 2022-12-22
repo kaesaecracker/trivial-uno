@@ -43,7 +43,7 @@ sealed class Player : IPlayer
 
     public void PickupCard(ICard card)
     {
-        _logger.LogInformation("{} draws {}", this, card);
+        _logger.LogInformation("{} picks up {}", this, card);
         _hand.Add(card);
     }
 

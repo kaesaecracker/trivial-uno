@@ -19,6 +19,12 @@ abstract class Strategy
     public ICard? GetNextTurn(IReadOnlyList<ICard> hand, Func<ICard, bool> canBePlayed)
     {
         IReadOnlyList<ICard> remainingOptions = hand.Where(canBePlayed).ToList();
+        // TODO how to de-dubplicate this?
+        if (remainingOptions.Count == 0)
+            return null;
+        if (remainingOptions.Count == 1)
+            return remainingOptions[0];
+
         foreach (var strategylet in NextTurn)
         {
             remainingOptions = strategylet.FilterOptions(hand, remainingOptions);

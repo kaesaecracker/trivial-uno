@@ -7,7 +7,7 @@ sealed class RandomChoice : INextTurnStrategylet
     private readonly Random _random;
     public RandomChoice(Random rand)
     {
-        _random = rand;
+        _random = new Random(rand.Next());
     }
 
     public IReadOnlyList<ICard> FilterOptions(IReadOnlyList<ICard> hand, IReadOnlyList<ICard> remainingOptions)

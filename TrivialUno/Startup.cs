@@ -24,6 +24,7 @@ static class Startup
         .SetMinimumLevel(LogLevel.Trace)
         .AddFilter("System", LogLevel.Warning)
         .AddFilter("TrivialUno.PlayerTurnOrder", LogLevel.Information)
+        .AddFilter("TrivialUno.CardTypeManager", LogLevel.Information)
         .AddFilter("TrivialUno.Game", LogLevel.Information)
         .AddSimpleConsole(opts =>
         {
