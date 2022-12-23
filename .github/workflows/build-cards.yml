@@ -1,8 +1,12 @@
-name: build-definitions
+name: build-cards
 
 on:
-  push:
+  workflow_run:
+    workflows: [ "build-definitions" ]
     branches: [ main ]
+    types:
+      - completed
+
 
 jobs:
   build:
@@ -23,10 +27,10 @@ jobs:
     - name: Print directory contents
       run: ls -lah
     - name: Restore
-      run: dotnet restore TrivialUno.Definitions
+      run: dotnet restore TrivialUno.DefaultCards
     - name: Build
-      run: dotnet build --configuration Release --no-restore TrivialUno.Definitions
+      run: dotnet build --configuration Release --no-restore TrivialUno.DefaultCards
     - name: Pack
-      run: dotnet pack --configuration Release TrivialUno.Definitions
+      run: dotnet pack --configuration Release TrivialUno.DefaultCards
     - name: Push
-      run: dotnet nuget push TrivialUno.Definitions/bin/Release/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push TrivialUno.DefaultCards/bin/Release/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
