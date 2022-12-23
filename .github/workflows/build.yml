@@ -29,5 +29,5 @@ jobs:
       run: dotnet nuget push nupkgs/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
     - name: Push other
       if: ${{ env.GITHUB_REF_NAME != 'main' }}
-      run: dotnet nuget push nupkgs/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --version-sufix r${{ env.GITHUB_RUN_NUMBER }}-${{ env.GITHUB_REF_NAME }}
+      run: dotnet nuget push nupkgs/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --version-sufix r${{ GITHUB_RUN_NUMBER }}-${{ GITHUB_REF_NAME }}
 
