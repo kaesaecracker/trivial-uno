@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <PackageId>TrivialUno.DefaultEffects</PackageId>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <AnalysisMode>Recommended</AnalysisMode>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
