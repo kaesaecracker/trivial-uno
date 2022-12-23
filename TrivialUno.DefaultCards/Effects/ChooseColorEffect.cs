@@ -1,6 +1,6 @@
-using TrivialUno.Definitions;
+using Microsoft.Extensions.Logging;
 
-namespace TrivialUno.DefaultEffects;
+namespace TrivialUno.DefaultCards.Effects;
 
 public sealed record class ChooseColorEffect(ILogger<ChooseColorEffect> Logger) : ICardEffect
 {

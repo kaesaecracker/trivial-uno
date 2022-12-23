@@ -1,4 +1,4 @@
-using TrivialUno.DefaultEffects;
+using TrivialUno.DefaultCards.Effects;
 using TrivialUno.Definitions.Attributes;
 
 namespace MyUno.CustomCards;

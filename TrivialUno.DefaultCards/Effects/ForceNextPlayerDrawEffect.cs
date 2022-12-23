@@ -1,6 +1,6 @@
 using TrivialUno.Definitions;
 
-namespace TrivialUno.DefaultEffects;
+namespace TrivialUno.DefaultCards.Effects;
 
 public abstract class ForceNextPlayerDrawEffect : ICardEffect
 {
