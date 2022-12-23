@@ -9,6 +9,9 @@ jobs:
     permissions:
       packages: write
 
+    env:
+      BuildName: r${{ github.ref_name }}-${{ github.run_number }}
+
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET
@@ -21,13 +24,8 @@ jobs:
     - name: Print directory contents
       run: ls -lah
     - name: Definitions
-      run: dotnet pack --configuration Release --output nupkgs TrivialUno.Definitions
+      run: dotnet pack --configuration Release --output nupkgs --version-sufix ${BuildName} TrivialUno.Definitions
     - name: DefaultCards
-      run: dotnet pack --configuration Release --output nupkgs TrivialUno.DefaultCards
-    - name: Push main
-      if: ${{ env.GITHUB_REF_NAME == 'main' }}
+      run: dotnet pack --configuration Release --output nupkgs --version-sufix ${BuildName} TrivialUno.DefaultCards
+    - name: Push
       run: dotnet nuget push nupkgs/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
-    - name: Push other
-      if: ${{ env.GITHUB_REF_NAME != 'main' }}
-      run: dotnet nuget push nupkgs/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --version-sufix r${{ GITHUB_RUN_NUMBER }}-${{ GITHUB_REF_NAME }}
-
