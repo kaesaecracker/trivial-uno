@@ -1,0 +1,36 @@
+name: build-cards
+
+on:
+  workflow_run:
+    workflows: [ "build-definitions" ]
+    branches: [ main ]
+    types:
+      - completed
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+        source-url: https://nuget.pkg.github.com/kaesaecracker/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    - name: Print directory contents
+      run: ls -lah
+    - name: Restore
+      run: dotnet restore TrivialUno.DefaultCards
+    - name: Build
+      run: dotnet build --configuration Release --no-restore TrivialUno.DefaultCards
+    - name: Pack
+      run: dotnet pack --configuration Release TrivialUno.DefaultCards
+    - name: Push
+      run: dotnet nuget push TrivialUno.DefaultCards/bin/Release/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}

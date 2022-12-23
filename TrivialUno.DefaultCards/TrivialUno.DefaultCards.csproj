@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <PackageId>TrivialUno.DefaultCards</PackageId>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <AnalysisMode>Recommended</AnalysisMode>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
@@ -20,17 +26,16 @@
     <!-- implicit global using -->
     <Using Include="TrivialUno.Definitions" />
     <Using Include="TrivialUno.Definitions.Attributes" />
-    <Using Include="TrivialUno.DefaultEffects" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- components -->
     <ProjectReference Include="..\TrivialUno.Definitions\TrivialUno.Definitions.csproj" />
-    <ProjectReference Include="..\TrivialUno.DefaultEffects\TrivialUno.DefaultEffects.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- external dependencies -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
   </ItemGroup>
 </Project>

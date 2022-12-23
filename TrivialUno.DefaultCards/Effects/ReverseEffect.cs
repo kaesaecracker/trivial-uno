@@ -1,4 +1,4 @@
-namespace TrivialUno.DefaultEffects;
+namespace TrivialUno.DefaultCards.Effects;
 
 public sealed class ReverseEffect : ICardEffect
 {
